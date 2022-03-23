@@ -80,3 +80,113 @@ func TestTop10(t *testing.T) {
 		}
 	})
 }
+
+func TestStringExplode(t *testing.T) {
+	tests := []struct {
+		str   string
+		words []string
+	}{
+		{
+			str:   "a b c d a",
+			words: []string{"a", "b", "c", "d", "a"},
+		},
+		{
+			str:   "a    b   c    cc c",
+			words: []string{"a", "b", "c", "cc", "c"},
+		},
+		{
+			str:   " а б в Г г",
+			words: []string{"а", "б", "в", "Г", "г"},
+		},
+		{
+			str:   "",
+			words: []string{},
+		},
+		{
+			str:   "  ",
+			words: []string{},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.str, func(t *testing.T) {
+			result := StringExplode(tc.str)
+			require.Equal(t, tc.words, result)
+		})
+	}
+}
+
+func TestGetSortingStat(t *testing.T) {
+	tests := []struct {
+		str        string
+		maxResults int
+		stat       []Stat
+	}{
+		{
+			str:        "a b c a a a c c c c c c",
+			maxResults: 1,
+			stat: []Stat{
+				{Word: "c", Count: 7},
+			},
+		},
+		{
+			str:        "a b c a a a c c c c c c",
+			maxResults: 10,
+			stat: []Stat{
+				{Word: "c", Count: 7},
+				{Word: "a", Count: 4},
+				{Word: "b", Count: 1},
+			},
+		},
+		{
+			str:        "a b c a a a c c c c c c",
+			maxResults: 0,
+			stat:       []Stat{},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.str, func(t *testing.T) {
+			result := GetSortingStat(tc.str, tc.maxResults)
+			require.Equal(t, tc.stat, result)
+		})
+	}
+}
+
+func TestSort(t *testing.T) {
+	tests := []struct {
+		name   string
+		a      Stat
+		b      Stat
+		result bool
+	}{
+		{
+			name:   "Compare #1",
+			a:      Stat{Word: "a", Count: 1},
+			b:      Stat{Word: "b", Count: 2},
+			result: false,
+		},
+		{
+			name:   "Compare #2",
+			a:      Stat{Word: "a", Count: 2},
+			b:      Stat{Word: "b", Count: 1},
+			result: true,
+		},
+		{
+			name:   "Compare #3",
+			a:      Stat{Word: "a", Count: 2},
+			b:      Stat{Word: "b", Count: 2},
+			result: true,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			result := Sort(tc.a, tc.b)
+			require.Equal(t, tc.result, result)
+		})
+	}
+}
