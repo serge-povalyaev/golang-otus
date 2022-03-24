@@ -12,15 +12,22 @@ func TestUnpack(t *testing.T) {
 		input    string
 		expected string
 	}{
+		// Стандартное поведение
 		{input: "a4bc2d5e", expected: "aaaabccddddde"},
+		// Тестирование без цифр
 		{input: "abccd", expected: "abccd"},
+		// Проверка пустой строки
 		{input: "", expected: ""},
+		// Проверка использования нуля
 		{input: "aaa0b", expected: "aab"},
-		// uncomment if task with asterisk completed
-		// {input: `qwe\4\5`, expected: `qwe45`},
-		// {input: `qwe\45`, expected: `qwe44444`},
-		// {input: `qwe\\5`, expected: `qwe\\\\\`},
-		// {input: `qwe\\\3`, expected: `qwe\3`},
+		// Проверка дополнительных символов
+		{input: "\n3bc0", expected: "\n\n\nb"},
+		// Проверка кириллицы
+		{input: "ПП0р1и2в3е4т", expected: "Приивввеееет"},
+		// Проверка использования пробелов
+		{input: "O 2T 3U 0S", expected: "O  T   US"},
+		// Проверка экранирования обратного слеша
+		{input: "\\3", expected: "\\\\\\"},
 	}
 
 	for _, tc := range tests {
@@ -34,7 +41,7 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	invalidStrings := []string{"3abc", "45", "aaa10b"}
+	invalidStrings := []string{"5", "3abc", "45", "aaa10b"}
 	for _, tc := range invalidStrings {
 		tc := tc
 		t.Run(tc, func(t *testing.T) {
