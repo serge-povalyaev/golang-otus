@@ -26,20 +26,26 @@ func Run(tasks []Task, n, m int) error {
 	for i := 0; i < n; i++ {
 		go func() {
 			defer wg.Done()
-
+			isContinue := true
 			for task := range ch {
 				err := task()
+
+				mu.Lock()
 				if err != nil {
-					mu.Lock()
 					errorsCount++
-					mu.Unlock()
 				}
+
+				if errorsCount >= m {
+					isContinue = false
+				}
+
+				mu.Unlock()
 
 				if m <= 0 {
 					continue
 				}
 
-				if errorsCount >= m {
+				if isContinue == false {
 					return
 				}
 			}
