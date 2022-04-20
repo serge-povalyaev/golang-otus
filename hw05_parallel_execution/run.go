@@ -14,9 +14,14 @@ func Run(tasks []Task, n, m int) error {
 	var errorsCount int
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
+	tasksCount := len(tasks)
 	wg.Add(n)
 
-	ch := make(chan Task, len(tasks))
+	ch := make(chan Task, tasksCount)
+
+	if n > tasksCount {
+		n = tasksCount
+	}
 
 	for i := 0; i < n; i++ {
 		go func() {

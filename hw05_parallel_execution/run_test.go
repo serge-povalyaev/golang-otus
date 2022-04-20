@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"runtime"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -67,24 +66,6 @@ func TestRun(t *testing.T) {
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
-	})
-
-	t.Run("Запускаем горутин больше, чем задач", func(t *testing.T) {
-		startGoroutineCount := runtime.NumGoroutine()
-		tasksCount := 50
-		tasks := make([]Task, 0, tasksCount)
-		for i := 0; i < tasksCount; i++ {
-			tasks = append(tasks, func() error {
-				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-				return nil
-			})
-		}
-
-		_ = Run(tasks, 100, 7)
-
-		endGoroutineCount := runtime.NumGoroutine()
-
-		require.Equal(t, startGoroutineCount, endGoroutineCount)
 	})
 
 	t.Run("Разрешенное количество ошибок равно 0", func(t *testing.T) {
