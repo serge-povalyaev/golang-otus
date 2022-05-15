@@ -37,15 +37,8 @@ func TestPipeline(t *testing.T) {
 	}
 
 	t.Run("simple case", func(t *testing.T) {
-		in := make(Bi)
 		data := []int{1, 2, 3, 4, 5}
-
-		go func() {
-			for _, v := range data {
-				in <- v
-			}
-			close(in)
-		}()
+		in := fillDataChan(data)
 
 		result := make([]string, 0, 10)
 		start := time.Now()
@@ -62,22 +55,14 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("done case", func(t *testing.T) {
-		in := make(Bi)
+		in := fillDataChan([]int{1, 2, 3, 4, 5})
 		done := make(Bi)
-		data := []int{1, 2, 3, 4, 5}
 
 		// Abort after 200ms
 		abortDur := sleepPerStage * 2
 		go func() {
 			<-time.After(abortDur)
 			close(done)
-		}()
-
-		go func() {
-			for _, v := range data {
-				in <- v
-			}
-			close(in)
 		}()
 
 		result := make([]string, 0, 10)
@@ -90,4 +75,49 @@ func TestPipeline(t *testing.T) {
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
+
+	t.Run("done at once", func(t *testing.T) {
+		in := fillDataChan([]int{1, 2, 3, 4, 5})
+		done := make(Bi)
+
+		close(done)
+
+		result := make([]string, 0, 10)
+		for s := range ExecutePipeline(in, done, stages...) {
+			result = append(result, s.(string))
+		}
+
+		require.Len(t, result, 0)
+	})
+
+	t.Run("done during pipeline execution", func(t *testing.T) {
+		in := fillDataChan([]int{1, 2, 3, 4, 5})
+		done := make(Bi)
+
+		var i int
+		result := make([]string, 0, 10)
+		for s := range ExecutePipeline(in, done, stages...) {
+			i++
+			result = append(result, s.(string))
+
+			if i == 3 {
+				close(done)
+			}
+		}
+
+		require.Len(t, result, i)
+	})
+}
+
+func fillDataChan(data []int) Bi {
+	in := make(Bi)
+
+	go func() {
+		for _, v := range data {
+			in <- v
+		}
+		close(in)
+	}()
+
+	return in
 }
