@@ -12,10 +12,14 @@ var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 	ErrFileNotFound          = errors.New("file not found")
+	ErrBufSize               = errors.New("size of buffer incorrect")
 )
 
-func Copy(fromPath, toPath string, offset, limit int64) error {
-	var sourceFile *os.File
+func Copy(fromPath, toPath string, offset, limit, bufSize int64) error {
+	if bufSize <= 0 {
+		return ErrBufSize
+	}
+
 	sourceFile, err := os.Open(fromPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -53,7 +57,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	bar := pb.StartNew(getBarSize(fileSize, offset, limit))
 
-	buf := make([]byte, 1)
+	buf := make([]byte, bufSize)
 	for offset < n {
 		_, err := sourceFile.ReadAt(buf, offset)
 		if err != nil {

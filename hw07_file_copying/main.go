@@ -40,7 +40,7 @@ func main() {
 		return
 	}
 
-	errorResult := Copy(from, to, offset, limit)
+	errorResult := Copy(from, to, offset, limit, 1)
 	if errorResult != nil {
 		fmt.Println(errorResult)
 	}
