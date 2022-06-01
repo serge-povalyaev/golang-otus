@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 var (
@@ -18,5 +19,29 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+
+	if len(from) == 0 {
+		fmt.Println("Необходимо указать аргумент from")
+		return
+	}
+
+	if len(to) == 0 {
+		fmt.Println("Необходимо указать аргумент to")
+		return
+	}
+
+	if offset < 0 {
+		fmt.Println("offset должен быть положительным числом")
+		return
+	}
+
+	if limit < 0 {
+		fmt.Println("limit должен быть положительным числом")
+		return
+	}
+
+	errorResult := Copy(from, to, offset, limit, 1)
+	if errorResult != nil {
+		fmt.Println(errorResult)
+	}
 }
