@@ -7,7 +7,7 @@ import (
 
 func TestRunCmd(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		assert.Equal(t, successCode, RunCmd([]string{"cd ."}, Environment{}))
+		assert.Equal(t, successCode, RunCmd([]string{"ls"}, Environment{}))
 	})
 
 	t.Run("Error", func(t *testing.T) {
