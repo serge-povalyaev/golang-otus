@@ -1,7 +1,16 @@
 package main
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestRunCmd(t *testing.T) {
-	// Place your code here
+	t.Run("Success", func(t *testing.T) {
+		assert.Equal(t, successCode, RunCmd([]string{"cd ."}, Environment{}))
+	})
+
+	t.Run("Error", func(t *testing.T) {
+		assert.Equal(t, successCode, RunCmd([]string{"cd tmp"}, Environment{}))
+	})
 }
