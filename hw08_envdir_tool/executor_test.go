@@ -11,6 +11,6 @@ func TestRunCmd(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
-		assert.Equal(t, successCode, RunCmd([]string{"cd tmp"}, Environment{}))
+		assert.Equal(t, errorCode, RunCmd([]string{"cd tmp"}, Environment{}))
 	})
 }
