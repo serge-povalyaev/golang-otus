@@ -17,7 +17,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	for envName, envValue := range env {
-		command.Env = append(command.Env, fmt.Sprintf("%s=%s", envName, envValue.Value))
+		command.Env = append(command.Env, fmt.Sprintf("%s=%s", envName, envValue.Value)) //nolint
 	}
 
 	err := command.Run()
