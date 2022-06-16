@@ -18,7 +18,7 @@ type EnvValue struct {
 	NeedRemove bool
 }
 
-var ErrNotDir = errors.New("Указанный путь не является путем до директории.")
+var ErrNotDir = errors.New("указанный путь не является путем до директории")
 
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
