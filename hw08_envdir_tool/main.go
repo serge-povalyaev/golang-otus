@@ -25,14 +25,10 @@ func main() {
 	}
 
 	envs, err := ReadDir(envPath)
-	fmt.Println(envs)
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	fmt.Println(envPath, commandWithArgs)
-
-	//programName := os.Args
-	//fmt.Println(programName)
+	RunCmd(commandWithArgs, envs)
 }
