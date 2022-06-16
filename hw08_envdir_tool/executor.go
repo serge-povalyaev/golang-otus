@@ -20,8 +20,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		command.Env = append(command.Env, fmt.Sprintf("%s=%s", envName, envValue.Value))
 	}
 
-	err := command.Run()
-	if err != nil {
+	if err := command.Run(); err != nil {
 		return errorCode
 	}
 
