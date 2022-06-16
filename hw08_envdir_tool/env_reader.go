@@ -82,7 +82,7 @@ func readFirstLine(filePath string) (string, error) {
 func stringProcess(str string) string {
 	str = strings.TrimRight(str, "\t\n")
 	str = strings.TrimRight(str, " ")
-	str = string(bytes.Replace([]byte(str), []byte("\x00"), []byte("\n"), -1))
+	str = string(bytes.ReplaceAll([]byte(str), []byte("\x00"), []byte("\n")))
 
 	return str
 }
