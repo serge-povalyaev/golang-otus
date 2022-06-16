@@ -3,8 +3,9 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -43,7 +44,7 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			Response{201, "test"},
-			ValidationErrors{ValidationError{"Code", inIntError}},
+			ValidationErrors{ValidationError{"Code", errInInt}},
 		},
 		{
 			Response{200, "test"},
@@ -55,7 +56,7 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			App{"test"},
-			ValidationErrors{ValidationError{"Version", lenError}},
+			ValidationErrors{ValidationError{"Version", errLen}},
 		},
 		{
 			App{"5.0.4"},
@@ -72,12 +73,12 @@ func TestValidate(t *testing.T) {
 				meta:   []byte("{}"),
 			},
 			ValidationErrors{
-				ValidationError{"ID", lenError},
-				ValidationError{"Age", maxError},
-				ValidationError{"Email", regexpError},
-				ValidationError{"Role", inStringError},
-				ValidationError{"Phones[0]", lenError},
-				ValidationError{"Phones[1]", lenError},
+				ValidationError{"ID", errLen},
+				ValidationError{"Age", errMax},
+				ValidationError{"Email", errRegexp},
+				ValidationError{"Role", errInString},
+				ValidationError{"Phones[0]", errLen},
+				ValidationError{"Phones[1]", errLen},
 			},
 		},
 		{

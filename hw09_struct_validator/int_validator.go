@@ -7,14 +7,14 @@ import (
 )
 
 var (
-	minError   = errors.New("Значение должно быть больше")
-	maxError   = errors.New("Значение должно быть меньше")
-	inIntError = errors.New("Отсутствует в перечисленных вариантах")
+	errMin   = errors.New("значение должно быть больше")
+	errMax   = errors.New("значение должно быть меньше")
+	errInInt = errors.New("отсутствует в перечисленных вариантах")
 )
 
 func minValidator(value, min int) error {
 	if value < min {
-		return minError
+		return errMin
 	}
 
 	return nil
@@ -22,7 +22,7 @@ func minValidator(value, min int) error {
 
 func maxValidator(value, max int) error {
 	if value > max {
-		return maxError
+		return errMax
 	}
 
 	return nil
@@ -30,7 +30,7 @@ func maxValidator(value, max int) error {
 
 func inIntValidator(value int, allowedValues string) error {
 	if !contains(strings.Split(allowedValues, ","), strconv.Itoa(value)) {
-		return inIntError
+		return errInInt
 	}
 
 	return nil

@@ -8,14 +8,14 @@ import (
 )
 
 var (
-	lenError      = errors.New("Несоответствие длины строки")
-	regexpError   = errors.New("Несоответствие регулярному выражению")
-	inStringError = errors.New("Отсутствует в перечисленных вариантах")
+	errLen      = errors.New("несоответствие длины строки")
+	errRegexp   = errors.New("несоответствие регулярному выражению")
+	errInString = errors.New("отсутствует в перечисленных вариантах")
 )
 
 func lenValidator(value string, length int) error {
 	if utf8.RuneCountInString(value) != length {
-		return lenError
+		return errLen
 	}
 
 	return nil
@@ -28,7 +28,7 @@ func regexpValidator(value, regexpTemplate string) (error, error) {
 	}
 
 	if !matched {
-		return regexpError, nil
+		return errRegexp, nil
 	}
 
 	return nil, nil
@@ -36,7 +36,7 @@ func regexpValidator(value, regexpTemplate string) (error, error) {
 
 func inStringValidator(value, allowedValues string) error {
 	if !contains(strings.Split(allowedValues, ","), value) {
-		return inStringError
+		return errInString
 	}
 
 	return nil

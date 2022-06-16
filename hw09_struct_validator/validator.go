@@ -13,14 +13,14 @@ type ValidationError struct {
 }
 
 var (
-	ErrUnsupportedValidator = errors.New("Неподдерживаемый валидатор")
-	ErrUnsupportedType      = errors.New("Неподдерживаемый тип данных")
+	ErrUnsupportedValidator = errors.New("неподдерживаемый валидатор")
+	ErrUnsupportedType      = errors.New("неподдерживаемый тип данных")
 )
 
 type ValidationErrors []ValidationError
 
 func (v ValidationErrors) Error() string {
-	result := make([]string, len(v))
+	result := make([]string, 0)
 	for _, err := range v {
 		result = append(result, err.Field+": "+err.Err.Error())
 	}
@@ -54,25 +54,12 @@ func Validate(v interface{}) error {
 			fieldTypeKind := fieldInfo.Type.Kind()
 
 			if fieldTypeKind == reflect.Slice {
-				slice := fieldValue.Slice(0, fieldValue.Len())
-				sliceOf := fieldValue.Type().Elem().Kind()
-				for i := 0; i < fieldValue.Len(); i++ {
-					var validationError error
-					var err error
-					switch sliceOf {
-					case reflect.String, reflect.Int:
-						validationError, err = validateValue(ValidateData{validatorName, validatorValue, slice.Index(i)}, sliceOf)
-						if err != nil {
-							return err
-						}
-					default:
-						return ErrUnsupportedType
-					}
-
-					if validationError != nil {
-						validationErrors = append(validationErrors, ValidationError{fieldInfo.Name + "[" + strconv.Itoa(i) + "]", validationError})
-					}
+				sliceValidationErrors, err := validateSlice(ValidateData{validatorName, validatorValue, fieldValue}, fieldInfo.Name)
+				if err != nil {
+					return err
 				}
+
+				validationErrors = append(validationErrors, sliceValidationErrors...)
 			} else {
 				validationError, err := validateValue(ValidateData{validatorName, validatorValue, fieldValue}, fieldTypeKind)
 				if err != nil {
@@ -83,7 +70,6 @@ func Validate(v interface{}) error {
 					validationErrors = append(validationErrors, ValidationError{fieldInfo.Name, validationError})
 				}
 			}
-
 		}
 	}
 
@@ -101,7 +87,7 @@ type ValidateData struct {
 }
 
 func validateValue(data ValidateData, fieldTypeKind reflect.Kind) (error, error) {
-	switch fieldTypeKind {
+	switch fieldTypeKind { //nolint:exhaustive
 	case reflect.String:
 		return data.ValidateString()
 
@@ -111,6 +97,34 @@ func validateValue(data ValidateData, fieldTypeKind reflect.Kind) (error, error)
 	default:
 		return nil, ErrUnsupportedType
 	}
+}
+
+func validateSlice(data ValidateData, fieldName string) (ValidationErrors, error) {
+	var validationErrors ValidationErrors
+	slice := data.fieldValue.Slice(0, data.fieldValue.Len())
+	sliceOf := data.fieldValue.Type().Elem().Kind()
+	for i := 0; i < data.fieldValue.Len(); i++ {
+		var validationError error
+		var err error
+		switch sliceOf { //nolint:exhaustive
+		case reflect.String, reflect.Int:
+			validationError, err = validateValue(ValidateData{data.validatorName, data.validatorValue, slice.Index(i)}, sliceOf)
+			if err != nil {
+				return nil, err
+			}
+		default:
+			return nil, ErrUnsupportedType
+		}
+
+		if validationError != nil {
+			validationErrors = append(
+				validationErrors,
+				ValidationError{fieldName + "[" + strconv.Itoa(i) + "]", validationError},
+			)
+		}
+	}
+
+	return validationErrors, nil
 }
 
 func (data ValidateData) ValidateString() (error, error) {

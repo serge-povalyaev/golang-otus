@@ -2,9 +2,10 @@ package hw09structvalidator
 
 import (
 	"errors"
-	"github.com/stretchr/testify/require"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestLenValidator(t *testing.T) {
@@ -21,7 +22,7 @@ func TestLenValidator(t *testing.T) {
 		{
 			value: "GO",
 			len:   6,
-			error: lenError,
+			error: errLen,
 		},
 		{
 			value: "Го",
@@ -54,7 +55,7 @@ func TestRegexpValidator(t *testing.T) {
 		{
 			value:              "otus.ru",
 			regexp:             "^\\w+@\\w+\\.\\w+$",
-			validationError:    regexpError,
+			validationError:    errRegexp,
 			hasProcessingError: false,
 		},
 		{
@@ -89,12 +90,12 @@ func TestInStringValidator(t *testing.T) {
 		{
 			value: "GO",
 			in:    "GOLANG,PHP",
-			error: inStringError,
+			error: errInString,
 		},
 		{
 			value: "GO",
 			in:    "",
-			error: inStringError,
+			error: errInString,
 		},
 	}
 

@@ -2,9 +2,10 @@ package hw09structvalidator
 
 import (
 	"errors"
-	"github.com/stretchr/testify/require"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMaxValidator(t *testing.T) {
@@ -26,7 +27,7 @@ func TestMaxValidator(t *testing.T) {
 		{
 			value: 6,
 			max:   5,
-			error: maxError,
+			error: errMax,
 		},
 	}
 
@@ -57,7 +58,7 @@ func TestMinValidator(t *testing.T) {
 		{
 			value: 5,
 			min:   6,
-			error: minError,
+			error: errMin,
 		},
 	}
 
@@ -88,7 +89,7 @@ func TestInIntValidator(t *testing.T) {
 		{
 			value: 1,
 			in:    "2,3,4",
-			error: inIntError,
+			error: errInInt,
 		},
 	}
 
