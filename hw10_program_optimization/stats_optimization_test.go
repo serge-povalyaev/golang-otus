@@ -4,6 +4,7 @@
 package hw10programoptimization
 
 import (
+	"archive/zip"
 	"bytes"
 	"testing"
 	"time"
