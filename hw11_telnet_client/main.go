@@ -26,8 +26,7 @@ func main() {
 	address := net.JoinHostPort(host, port)
 	client := NewTelnetClient(address, *timeout, os.Stdin, os.Stdout)
 
-	err := client.Connect()
-	if err != nil {
+	if err := client.Connect(); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -39,7 +38,7 @@ func main() {
 	defer cancel()
 
 	go func() {
-		err = client.Receive()
+		err := client.Receive()
 		if err != nil {
 			log.Fatalln(err)
 			return
@@ -50,7 +49,7 @@ func main() {
 	}()
 
 	go func() {
-		err = client.Send()
+		err := client.Send()
 		if err != nil {
 			log.Fatalln(err)
 			return
