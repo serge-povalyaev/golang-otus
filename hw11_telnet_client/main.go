@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -30,8 +29,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Println("...Connected to", address)
-
 	defer client.Close()
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -43,7 +40,6 @@ func main() {
 			log.Fatalln(err)
 			return
 		}
-		fmt.Println("...Connection was closed by peer")
 
 		cancel()
 	}()
@@ -54,8 +50,6 @@ func main() {
 			log.Fatalln(err)
 			return
 		}
-
-		fmt.Println("...EOF")
 
 		cancel()
 	}()
