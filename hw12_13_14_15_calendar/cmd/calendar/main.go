@@ -3,21 +3,25 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/serge.povalyaev/calendar/db"
+	configCalendar "github.com/serge.povalyaev/calendar/internal/config/calendar"
+	"github.com/serge.povalyaev/calendar/internal/repository"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/serge.povalyaev/calendar/internal/app"
+	"github.com/serge.povalyaev/calendar/internal/logger"
+	internalhttp "github.com/serge.povalyaev/calendar/internal/server/http"
+
+	_ "github.com/lib/pq" // Init Database Driver
 )
 
-var configFile string
+var configPath string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configPath, "config", "config/calendar.yaml", "Путь до файла конфигурации")
 }
 
 func main() {
@@ -28,13 +32,27 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	config := configCalendar.ReadConfig(configPath)
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	// Настройка логгера
+	log := logger.New(config.Logger.Level, config.Logger.FilePath)
 
-	server := internalhttp.NewServer(logg, calendar)
+	// Настройка подключения к БД
+	dsn := db.CreateDSN(
+		config.DB.Host,
+		config.DB.Port,
+		config.DB.User,
+		config.DB.Pass,
+		config.DB.Name,
+	)
+	connection := db.Connect(dsn)
+
+	// Настройка репозитория
+	eventRepository := repository.GetEventRepository(config.RepositoryType, connection)
+
+	_ = app.New(*log, eventRepository, connection)
+
+	server := internalhttp.NewServer(config.Server.Host, config.Server.Port, log)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -47,14 +65,14 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+			log.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	logg.Info("calendar is running...")
+	log.Info("calendar is running...")
 
 	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
+		log.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}

@@ -2,25 +2,29 @@ package app
 
 import (
 	"context"
+	"github.com/jmoiron/sqlx"
+	"github.com/serge.povalyaev/calendar/internal/logger"
+	"github.com/serge.povalyaev/calendar/internal/repository"
 )
 
-type App struct { // TODO
+type App struct {
+	logger          logger.CalendarLogger
+	eventRepository repository.EventRepository
+	connection      *sqlx.DB
 }
 
-type Logger interface { // TODO
-}
-
-type Storage interface { // TODO
-}
-
-func New(logger Logger, storage Storage) *App {
-	return &App{}
+func New(logger logger.CalendarLogger, eventRepository repository.EventRepository, connection *sqlx.DB) *App {
+	return &App{
+		logger:          logger,
+		eventRepository: eventRepository,
+		connection:      connection,
+	}
 }
 
 func (a *App) CreateEvent(ctx context.Context, id, title string) error {
 	// TODO
 	return nil
-	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+	// return a.repository.CreateEvent(repository.Event{ID: id, Title: title})
 }
 
 // TODO

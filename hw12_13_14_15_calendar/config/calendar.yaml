@@ -1,0 +1,16 @@
+repositoryType: memory
+
+server:
+  host: localhost
+  port: 8080
+
+db:
+  host: localhost
+  port: 5432
+  user: otus
+  pass: otus
+  name: calendar
+
+logger:
+  level: debug
+  filePath: logs/calendar.log
