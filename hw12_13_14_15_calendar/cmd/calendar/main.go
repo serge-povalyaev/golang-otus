@@ -52,7 +52,7 @@ func main() {
 
 	_ = app.New(*log, eventRepository, connection)
 
-	server := internalhttp.NewServer(config.Server.Host, config.Server.Port, log)
+	server := internalhttp.NewServer(config.Server.Host, config.Server.Port, log, eventRepository)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
