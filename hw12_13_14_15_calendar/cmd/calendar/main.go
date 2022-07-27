@@ -6,16 +6,19 @@ import (
 	"github.com/serge.povalyaev/calendar/db"
 	configCalendar "github.com/serge.povalyaev/calendar/internal/config/calendar"
 	"github.com/serge.povalyaev/calendar/internal/repository"
+	grpc2 "github.com/serge.povalyaev/calendar/internal/server/grpc"
+	internalhttp "github.com/serge.povalyaev/calendar/internal/server/http"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	_ "github.com/lib/pq" // Init Database Driver
 	"github.com/serge.povalyaev/calendar/internal/app"
 	"github.com/serge.povalyaev/calendar/internal/logger"
-	internalhttp "github.com/serge.povalyaev/calendar/internal/server/http"
-
-	_ "github.com/lib/pq" // Init Database Driver
 )
 
 var configPath string
@@ -52,7 +55,20 @@ func main() {
 
 	_ = app.New(*log, eventRepository, connection)
 
-	server := internalhttp.NewServer(config.Server.Host, config.Server.Port, log, eventRepository)
+	go func() {
+		lsn, err := net.Listen("tcp", ":50051")
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		grpcServer := grpc.NewServer()
+		grpc2.RegisterEventServiceServer(grpcServer, grpc2.NewServer(eventRepository))
+		if err := grpcServer.Serve(lsn); err != nil {
+			logrus.Fatal(err)
+		}
+	}()
+
+	httpServer := internalhttp.NewServer(config.Server.Host, config.Server.Port, log, eventRepository)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -64,15 +80,15 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		if err := server.Stop(ctx); err != nil {
-			log.Error("failed to stop http server: " + err.Error())
+		if err := httpServer.Stop(ctx); err != nil {
+			log.Error("failed to stop http httpServer: " + err.Error())
 		}
 	}()
 
 	log.Info("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
-		log.Error("failed to start http server: " + err.Error())
+	if err := httpServer.Start(ctx); err != nil {
+		log.Error("failed to start http httpServer: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
