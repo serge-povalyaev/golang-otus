@@ -1,6 +1,7 @@
 package calendar
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -34,13 +35,13 @@ func ReadConfig(configPath string) Config {
 	viper.SetConfigFile(configPath)
 	err := viper.ReadInConfig()
 	if err != nil {
-		logrus.Fatal("Не удалось прочитать файл конфигурации: %s", err)
+		logrus.Fatal(fmt.Sprintf("Не удалось прочитать файл конфигурации: %s", err))
 	}
 
 	var config Config
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		logrus.Fatal("Не удалось получить конфигурацию: %s", err)
+		logrus.Fatal(fmt.Sprintf("Не удалось получить конфигурацию: %s", err))
 	}
 
 	return config
