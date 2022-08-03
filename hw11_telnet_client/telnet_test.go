@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -61,5 +62,10 @@ func TestTelnetClient(t *testing.T) {
 		}()
 
 		wg.Wait()
+	})
+
+	t.Run("Подключение к несуществующему серверу", func(t *testing.T) {
+		client := NewTelnetClient("127.0.0.0", 5*time.Second, os.Stdin, os.Stdout)
+		require.Error(t, client.Connect())
 	})
 }
