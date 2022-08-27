@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package api;
+option go_package = "./;grpc";
+
+service EventService {
+  rpc AddEvent(AddEventRequest) returns (AddEventResponse) {}
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse) {}
+  rpc UpdateEvent(UpdateEventRequest) returns (Error) {}
+  rpc RemoveEvent(RemoveEventRequest) returns (Error) {}
+  rpc GetUserEvents(GetUserEventsRequest) returns (GetUserEventsResponse) {}
+  rpc GetUserEventsByDay(GetUserEventsShortRequest) returns (GetUserEventsResponse) {}
+  rpc GetUserEventsByWeek(GetUserEventsShortRequest) returns (GetUserEventsResponse) {}
+  rpc GetUserEventsByMonth(GetUserEventsShortRequest) returns (GetUserEventsResponse) {}
+}
+
+message EventData {
+  string title = 2;
+  string dateStart = 3;
+  string dateFinish = 4;
+  string description = 5;
+  int64 notifyBefore = 7;
+}
+
+message Event {
+  string id = 1;
+  int64 userId = 2;
+  EventData eventData = 3;
+}
+
+message Error {
+  uint32 code = 1;
+  string message = 2;
+}
+
+message AddEventRequest {
+  EventData event = 1;
+  int64 userId = 2;
+}
+
+message AddEventResponse {
+  string id = 1;
+  Error error = 2;
+}
+
+message GetEventRequest {
+  string id = 1;
+  int64 userId = 2;
+}
+
+message GetEventResponse {
+  Event event = 1;
+  Error error = 2;
+}
+
+message UpdateEventRequest {
+  string id = 1;
+  int64 userId = 2;
+  EventData eventData = 3;
+}
+
+message RemoveEventRequest {
+  string id = 1;
+  int64 userId = 2;
+}
+
+message GetUserEventsRequest {
+  int64 userId = 1;
+  string from = 2;
+  string to = 3;
+}
+
+message GetUserEventsResponse {
+  repeated Event events = 1;
+  Error error = 2;
+}
+
+message GetUserEventsShortRequest {
+  int64 userId = 1;
+  string from = 2;
+}

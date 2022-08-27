@@ -9,11 +9,17 @@ import (
 type Config struct {
 	RepositoryType string
 	Server         Server
+	GRPC           GRPC
 	DB             DBConfig
 	Logger         LoggerConfig
 }
 
 type Server struct {
+	Host string
+	Port string
+}
+
+type GRPC struct {
 	Host string
 	Port string
 }
